@@ -2,6 +2,8 @@
 
 Udacity Coursework
 
-Difficulties encountered so far:
-1. Base URL for Retrofit should not contain any paths
-2. Retrofit Call failed because of a deserialization error. Always check consistency between POJO classes and server's json response.
+The app uses a google custom search engine to get recipe images that are not present in the json data.
+In order to use the app add a file named apikey.properties at the root project directory. This file
+must include a line similar to this:
+googleapikey="xxx"
+where xxx is a valid Google API key
