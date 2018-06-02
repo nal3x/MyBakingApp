@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyBakingApp</string>
+    <string name="servings">Servings:\u0020</string>
+</resources>
