@@ -1,5 +1,6 @@
 package com.example.nalex.mybakingapp.ui;
 
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,6 +33,8 @@ public class SelectRecipes extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     private List<Recipe> mRecipes;
     private final static String TAG = SelectRecipes.class.getSimpleName();
+    private final static String RECIPE_LIST_SAVEDINSTANCESTATE_KEY = "RECIPE_LIST";
+    private final static String FALLBACK_IMAGE_URL = "https://www.gretchensbakery.com/wp-content/uploads/2013/01/ingrdients-2015.jpg";
 
     @BindInt(R.integer.recipes_list_columns) int numberOfColumns;
     @BindView(R.id.recipes_list_recycler_view) RecyclerView mRecyclerView;
@@ -45,28 +48,32 @@ public class SelectRecipes extends AppCompatActivity {
         mLayoutManager = new GridLayoutManager(this, numberOfColumns);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mRecipes = new ArrayList<>();
 
+
+        if (savedInstanceState == null) {
+            mRecipes = new ArrayList<>();
+            Call<List<Recipe>> call = Utils.getBakeService().getRecipes();
+            call.enqueue(new Callback<List<Recipe>>() {
+                @Override
+                public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
+                    if (null != response.body()) {
+                        mRecipes.addAll(response.body());
+                        Log.d(TAG, "Fetched recipes. Recipe 1 name: " + mRecipes.get(1).getName());
+                        fixBrokenImages();
+                    }
+                }
+                @Override
+                public void onFailure(Call<List<Recipe>> call, Throwable t) {
+                    Log.d(TAG, "Failed to get recipes");
+                }
+            });
+
+        } else {
+            mRecipes = savedInstanceState.getParcelableArrayList(RECIPE_LIST_SAVEDINSTANCESTATE_KEY);
+            Log.d(TAG, "Loaded recipes list from Bundle, recipe 0 name: " + mRecipes.get(0).getName());
+        }
         mAdapter = new RecipesAdapter(this, mRecipes);
         mRecyclerView.setAdapter(mAdapter);
-
-
-        Call<List<Recipe>> call = Utils.getBakeService().getRecipes();
-
-        call.enqueue(new Callback<List<Recipe>>() {
-            @Override
-            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
-                if (null != response.body()) {
-                    mRecipes.addAll(response.body());
-                    fixBrokenImages();
-                }
-            }
-            @Override
-            public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                Log.e(TAG, "Failed to get recipes");
-
-            }
-        });
     }
 
     private void fixBrokenImages() {
@@ -82,8 +89,16 @@ public class SelectRecipes extends AppCompatActivity {
                 call.enqueue(new Callback<Search>() {
                     @Override
                     public void onResponse(Call<Search> call, Response<Search> response) {
-                        if (null != response.body()) {
+                        Log.d(TAG, "Response code from image search: " + String.valueOf(response.code()));
+                        if (response.body() == null) {
+                            //fallback image for exceeding search limit
+                            Log.d(TAG, "Empty response body, setting fallback image");
+                            String fallbackImage = FALLBACK_IMAGE_URL;
+                            recipe.setImage(fallbackImage);
+                            mAdapter.notifyDataSetChanged();
+                        } else {
                             String imageUrl = response.body().getItems().get(0).getLink();
+                            Log.d("TAG", "Image URL from search" + imageUrl);
                             recipe.setImage(imageUrl);
                             mAdapter.notifyDataSetChanged();
                         }
@@ -95,8 +110,11 @@ public class SelectRecipes extends AppCompatActivity {
                 });
             }
         }
+    }
 
-
-
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(RECIPE_LIST_SAVEDINSTANCESTATE_KEY, (ArrayList<? extends Parcelable>) mRecipes);
+        super.onSaveInstanceState(outState);
     }
 }

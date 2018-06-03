@@ -17,7 +17,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -62,9 +61,10 @@ public class RecipesAdapter extends RecyclerView.Adapter<RecipesAdapter.RecipeVi
 
         //binding data from RecipesList data source to the views of the viewholder
         Recipe recipe = mRecipesList.get(position);
-        String imageUrl = recipe.getImage(); //TODO: use Utils to get image from URL
-        if(!TextUtils.isEmpty(imageUrl))
+        String imageUrl = recipe.getImage();
+        if (!TextUtils.isEmpty(imageUrl)) {
             Picasso.get().load(imageUrl).into(holder.mRecipeImage);
+        }
 
         holder.mRecipeTitle.setText(recipe.getName());
         holder.mRecipeServings.setText(mContext.getResources().getString(R.string.servings)

@@ -61,6 +61,4 @@ public class Utils {
 
         return retrofit.create(ImageService.class);
     }
-
-
 }
