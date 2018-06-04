@@ -68,7 +68,7 @@ public class SelectRecipes extends AppCompatActivity {
                 }
             });
 
-        } else {
+        } else { //load previously downloaded recipes
             mRecipes = savedInstanceState.getParcelableArrayList(RECIPE_LIST_SAVEDINSTANCESTATE_KEY);
             Log.d(TAG, "Loaded recipes list from Bundle, recipe 0 name: " + mRecipes.get(0).getName());
         }
@@ -83,7 +83,7 @@ public class SelectRecipes extends AppCompatActivity {
          */
 
         for (final Recipe recipe : mRecipes) {
-            if (TextUtils.isEmpty(recipe.getImage())) { //TextUtils?
+            if (TextUtils.isEmpty(recipe.getImage())) {
                 Map<String, String> queryOptions = Utils.getQueryOptions(recipe.getName()); //use recipe name as search term
                 Call<Search> call = getImageService().getImageUrl(queryOptions);
                 call.enqueue(new Callback<Search>() {
