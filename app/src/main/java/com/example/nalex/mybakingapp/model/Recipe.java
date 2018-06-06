@@ -6,6 +6,8 @@ import android.os.Parcelable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Recipe implements Parcelable { //TODO: Keep Parcelable only for Recipe(?)
@@ -46,11 +48,13 @@ public class Recipe implements Parcelable { //TODO: Keep Parcelable only for Rec
     }
             ;
 
-    protected Recipe(Parcel in) {
+    private Recipe(Parcel in) {
         this.id = ((int) in.readValue((int.class.getClassLoader())));
         this.name = ((String) in.readValue((String.class.getClassLoader())));
-        in.readList(this.ingredients, (com.example.nalex.mybakingapp.model.Ingredient.class.getClassLoader()));
-        in.readList(this.steps, (com.example.nalex.mybakingapp.model.Step.class.getClassLoader()));
+        this.ingredients = new ArrayList<Ingredient>();
+        in.readTypedList(this.ingredients, Ingredient.CREATOR);
+        this.steps = new ArrayList<Step>();
+        in.readTypedList(this.steps, Step.CREATOR);
         this.servings = ((int) in.readValue((int.class.getClassLoader())));
         this.image = ((String) in.readValue((String.class.getClassLoader())));
     }
@@ -114,10 +118,33 @@ public class Recipe implements Parcelable { //TODO: Keep Parcelable only for Rec
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeValue(id);
         dest.writeValue(name);
-        dest.writeList(ingredients);
-        dest.writeList(steps);
+        dest.writeTypedList(ingredients);
+        dest.writeTypedList(steps);
         dest.writeValue(servings);
         dest.writeValue(image);
+    }
+
+    /* Helper method that returns the ingredients of the recipe as a single String. Ingredients are
+     * separated by a newline character.
+     */
+    public String getRecipeIngredientsAsString () {
+        StringBuilder recipeIngredients = new StringBuilder();
+
+        for (Ingredient ingredient : this.getIngredients()) {
+            double quantity = ingredient.getQuantity();
+            recipeIngredients.append(String.valueOf(quantity));
+
+            if (ingredient.getMeasure() == "UNIT") { //3 large whole eggs
+                recipeIngredients.append(" ").append(ingredient.getIngredient());
+            } else { //if we have a unit of measure we append it directly to quantity lowercased
+                recipeIngredients.append(ingredient.getMeasure().toLowerCase()); //eg 250g
+                recipeIngredients.append(" of "); //250g of
+                recipeIngredients.append(ingredient.getIngredient()); //250g of sugar
+            }
+            recipeIngredients.append("\n");
+        }
+        recipeIngredients.deleteCharAt(recipeIngredients.length() - 1); //deleting the last newline
+        return recipeIngredients.toString();
     }
 
 }

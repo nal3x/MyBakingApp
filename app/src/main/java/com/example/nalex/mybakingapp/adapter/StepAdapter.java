@@ -1,5 +1,6 @@
 package com.example.nalex.mybakingapp.adapter;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.nalex.mybakingapp.R;
-import com.example.nalex.mybakingapp.model.Step;
 
 import java.util.List;
 
@@ -17,7 +17,13 @@ import butterknife.ButterKnife;
 
 public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder>{
 
-    private List<Step> mStepsList;
+    private List<String> mStepsList;
+    private Context mContext;
+
+    public StepAdapter(Context context, List<String> recipeSteps) {
+        mStepsList = recipeSteps;
+        mContext = context;
+    }
 
     public static class StepViewHolder extends RecyclerView.ViewHolder {
 
@@ -43,11 +49,8 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
-        Step recipeStep = mStepsList.get(position);
-        String stepDescription = recipeStep.getDescription();
-
-        holder.mRecipeStepDescription.setText(stepDescription);
-
+        String recipeStep = mStepsList.get(position);
+        holder.mRecipeStepDescription.setText(recipeStep);
     }
 
     @Override

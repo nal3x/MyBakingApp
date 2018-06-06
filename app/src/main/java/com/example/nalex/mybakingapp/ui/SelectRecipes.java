@@ -1,5 +1,6 @@
 package com.example.nalex.mybakingapp.ui;
 
+import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ import retrofit2.Response;
 
 import static com.example.nalex.mybakingapp.utils.Utils.getImageService;
 
-public class SelectRecipes extends AppCompatActivity {
+public class SelectRecipes extends AppCompatActivity implements RecipesAdapter.RecipeClickListener {
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -35,6 +36,7 @@ public class SelectRecipes extends AppCompatActivity {
     private final static String TAG = SelectRecipes.class.getSimpleName();
     private final static String RECIPE_LIST_SAVEDINSTANCESTATE_KEY = "RECIPE_LIST";
     private final static String FALLBACK_IMAGE_URL = "https://www.gretchensbakery.com/wp-content/uploads/2013/01/ingrdients-2015.jpg";
+    public static final String SELECT_RECIPES_ACTIVITY_INTENT_KEY = "SelectRecipesActivity";
 
     @BindInt(R.integer.recipes_list_columns) int numberOfColumns;
     @BindView(R.id.recipes_list_recycler_view) RecyclerView mRecyclerView;
@@ -72,8 +74,22 @@ public class SelectRecipes extends AppCompatActivity {
             mRecipes = savedInstanceState.getParcelableArrayList(RECIPE_LIST_SAVEDINSTANCESTATE_KEY);
             Log.d(TAG, "Loaded recipes list from Bundle, recipe 0 name: " + mRecipes.get(0).getName());
         }
-        mAdapter = new RecipesAdapter(this, mRecipes);
+        mAdapter = new RecipesAdapter(this, mRecipes, this);
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(RECIPE_LIST_SAVEDINSTANCESTATE_KEY, (ArrayList<? extends Parcelable>) mRecipes);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onRecipeClick(int clickedRecipeIndex) {
+        //receives clicks from the RecipesAdapter, getting the adapter position
+        Intent intent = new Intent(SelectRecipes.this, SelectRecipeStep.class);
+        intent.putExtra(SELECT_RECIPES_ACTIVITY_INTENT_KEY, mRecipes.get(clickedRecipeIndex));
+        startActivity(intent);
     }
 
     private void fixBrokenImages() {
@@ -112,9 +128,5 @@ public class SelectRecipes extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(RECIPE_LIST_SAVEDINSTANCESTATE_KEY, (ArrayList<? extends Parcelable>) mRecipes);
-        super.onSaveInstanceState(outState);
-    }
+
 }
