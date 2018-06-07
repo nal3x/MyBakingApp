@@ -28,6 +28,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     public static class StepViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.recipe_step_textview) TextView mRecipeStepDescription;
+        @BindView(R.id.recipe_step_metadata) TextView mStepMetaData;
 
         public StepViewHolder (View itemView) {
             super(itemView);
@@ -51,6 +52,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
         String recipeStep = mStepsList.get(position);
         holder.mRecipeStepDescription.setText(recipeStep);
+        holder.mStepMetaData.setText(String.valueOf(position + 1));
     }
 
     @Override
