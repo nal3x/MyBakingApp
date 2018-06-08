@@ -6,7 +6,7 @@
     android:layout_height="80dp">
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/recipe_step_textview"
+        android:id="@+id/step_short_description_textview"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_margin="8dp"

@@ -132,11 +132,16 @@ public class Recipe implements Parcelable { //TODO: Keep Parcelable only for Rec
 
         for (Ingredient ingredient : this.getIngredients()) {
             double quantity = ingredient.getQuantity();
-            recipeIngredients.append(String.valueOf(quantity));
-
-            if (ingredient.getMeasure() == "UNIT") { //3 large whole eggs
+            if ((int)quantity == quantity) {
+                //eliminates .0 in amounts
+                recipeIngredients.append(String.valueOf((int)quantity));
+            } else {
+                recipeIngredients.append(String.valueOf(quantity));
+            }
+            if (ingredient.getMeasure().equals("UNIT")) { //3 large whole eggs
                 recipeIngredients.append(" ").append(ingredient.getIngredient());
-            } else { //if we have a unit of measure we append it directly to quantity lowercased
+            } else {
+                //if we have a unit of measure we append it directly to quantity lowercased
                 recipeIngredients.append(ingredient.getMeasure().toLowerCase()); //eg 250g
                 recipeIngredients.append(" of "); //250g of
                 recipeIngredients.append(ingredient.getIngredient()); //250g of sugar

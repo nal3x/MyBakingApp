@@ -19,20 +19,34 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
 
     private List<String> mStepsList;
     private Context mContext;
+    private StepClickListener mStepListener;
 
-    public StepAdapter(Context context, List<String> recipeSteps) {
-        mStepsList = recipeSteps;
-        mContext = context;
+    //Interface implemented by the MasterListFragment
+    public interface StepClickListener {
+        public void onStepClick(int clickedStepIndex);
     }
 
-    public static class StepViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.recipe_step_textview) TextView mRecipeStepDescription;
+    public StepAdapter(Context context, List<String> recipeSteps, StepClickListener stepClickListener) {
+        mStepsList = recipeSteps;
+        mContext = context;
+        mStepListener = stepClickListener;
+    }
+
+    public class StepViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        @BindView(R.id.step_short_description_textview) TextView mRecipeStepDescription;
         @BindView(R.id.recipe_step_metadata) TextView mStepMetaData;
 
         public StepViewHolder (View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            mStepListener.onStepClick(getAdapterPosition());
         }
     }
 
@@ -52,7 +66,10 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
     public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
         String recipeStep = mStepsList.get(position);
         holder.mRecipeStepDescription.setText(recipeStep);
-        holder.mStepMetaData.setText(String.valueOf(position + 1));
+        if (position > 1)
+            holder.mStepMetaData.setText(String.valueOf(position -1));
+        else
+            holder.mStepMetaData.setText("");
     }
 
     @Override
