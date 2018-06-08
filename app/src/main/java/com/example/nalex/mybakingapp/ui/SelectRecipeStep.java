@@ -37,16 +37,17 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
         if(findViewById(R.id.two_pane_step_linear_layout) != null) {
             mTwoPane = true;
 
-            //TODO: savedinstancestate here! For fragments too!!!
+            if (savedInstanceState == null) {
+                //If in two pane mode we need to make fragment transactions to fill the layout
+                FragmentManager fragmentManager = getSupportFragmentManager();
 
-            //If in two pane mode we need to make fragment transactions to fill the layout
-            FragmentManager fragmentManager = getSupportFragmentManager();
+                StepDescriptionFragment descriptionFragment = new StepDescriptionFragment();
+                descriptionFragment.setStepDescription(mRecipe.getSteps().get(0).getDescription());
+                fragmentManager.beginTransaction()
+                        .add(R.id.step_description_container, descriptionFragment)
+                        .commit();
+            }
 
-            StepDescriptionFragment descriptionFragment = new StepDescriptionFragment();
-            descriptionFragment.setStepDescription(mRecipe.getSteps().get(0).getDescription());
-            fragmentManager.beginTransaction()
-                    .add(R.id.step_description_container, descriptionFragment)
-                    .commit();
         } else {
             mTwoPane = false;
         }

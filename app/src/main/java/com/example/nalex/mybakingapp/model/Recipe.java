@@ -10,7 +10,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Recipe implements Parcelable { //TODO: Keep Parcelable only for Recipe(?)
+public class Recipe implements Parcelable {
 
     @SerializedName("id")
     @Expose

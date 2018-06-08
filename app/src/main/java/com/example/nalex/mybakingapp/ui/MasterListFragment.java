@@ -30,7 +30,6 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
      */
 
     private List<String> mSteps;
-    private RecyclerView.LayoutManager mLayoutManager;
     private StepAdapter mStepAdapter;
     private onMasterListClickListener mCallback;
 
@@ -86,10 +85,9 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
     /* Setter method for the steps presented by this fragment (ingredients title + short description)
      * Used be the activity that creates the fragment. Takes a Recipe as an argument.
      */
-
     public void setSteps(Recipe recipe) {
 
-        mSteps.add(getResources().getString(R.string.ingredients_title)); //First step is just an "Ingredients" TextView.
+        mSteps.add(getResources().getString(R.string.ingredients_title)); //First "step" is just an "Ingredients" TextView.
         for (Step step : recipe.getSteps()) {
             mSteps.add(step.getShortDescription());
         }
@@ -101,7 +99,5 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
     public void onStepClick (int clickedStepIndex) {
         //clickedStepIndex carries the StepAdapter position
         mCallback.onStepClicked(clickedStepIndex);
-        Toast.makeText(getContext(), "Clicked step" + clickedStepIndex, Toast.LENGTH_SHORT).show();
-
     }
 }
