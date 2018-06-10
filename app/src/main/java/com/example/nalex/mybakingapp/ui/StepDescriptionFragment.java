@@ -38,6 +38,12 @@ public class StepDescriptionFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mStepDescription = null;
+    }
+
+    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         //save step description
         outState.putString("key", mStepDescription);

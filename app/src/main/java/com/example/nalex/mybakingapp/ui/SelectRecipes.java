@@ -50,9 +50,7 @@ public class SelectRecipes extends AppCompatActivity implements RecipesAdapter.R
         mLayoutManager = new GridLayoutManager(this, numberOfColumns);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-
-
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null) { //load recipes from internet
             mRecipes = new ArrayList<>();
             Call<List<Recipe>> call = Utils.getBakeService().getRecipes();
             call.enqueue(new Callback<List<Recipe>>() {
@@ -107,7 +105,7 @@ public class SelectRecipes extends AppCompatActivity implements RecipesAdapter.R
                     public void onResponse(Call<Search> call, Response<Search> response) {
                         Log.d(TAG, "Response code from image search: " + String.valueOf(response.code()));
                         if (response.body() == null) {
-                            //fallback image for exceeding search limit
+                            //fallback image for exceeding daily search limit
                             Log.d(TAG, "Empty response body, setting fallback image");
                             String fallbackImage = FALLBACK_IMAGE_URL;
                             recipe.setImage(fallbackImage);

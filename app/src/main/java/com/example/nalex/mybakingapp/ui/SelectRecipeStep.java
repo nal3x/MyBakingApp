@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
 
 import com.example.nalex.mybakingapp.R;
 import com.example.nalex.mybakingapp.model.Recipe;
@@ -17,8 +20,11 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
      * only for mobiles.
      */
 
-    Recipe mRecipe;
+    private Recipe mRecipe;
     private boolean mTwoPane;
+    private StepDescriptionFragment mStepDescriptionFragment;
+    private ExoplayerFragment mExoplayerFragment;
+    private final FragmentManager mFragmentManager = getSupportFragmentManager();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,13 +45,24 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
 
             if (savedInstanceState == null) {
                 //If in two pane mode we need to make fragment transactions to fill the layout
-                FragmentManager fragmentManager = getSupportFragmentManager();
 
-                StepDescriptionFragment descriptionFragment = new StepDescriptionFragment();
-                descriptionFragment.setStepDescription(mRecipe.getSteps().get(0).getDescription());
-                fragmentManager.beginTransaction()
-                        .add(R.id.step_description_container, descriptionFragment)
+                mStepDescriptionFragment = new StepDescriptionFragment();
+                mStepDescriptionFragment.setStepDescription(mRecipe.getSteps().get(0).getDescription());
+                mFragmentManager.beginTransaction()
+                        .add(R.id.step_description_container, mStepDescriptionFragment)
                         .commit();
+
+                String videoUrl = mRecipe.getSteps().get(0).getVideoURL();
+                if (!TextUtils.isEmpty(videoUrl)) {
+                    Log.d("VideoURL", videoUrl);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ExoplayerFragment.URL_KEY, videoUrl);
+                    mExoplayerFragment = new ExoplayerFragment();
+                    mExoplayerFragment.setArguments(bundle);
+                    mFragmentManager.beginTransaction()
+                            .add(R.id.exoplayer_container, mExoplayerFragment)
+                            .commit();
+                }
             }
 
         } else {
@@ -62,22 +79,61 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
          */
         if (mTwoPane) {
             //In two-pane mode, make new Fragments and replace the existing ones
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            StepDescriptionFragment descriptionFragment = new StepDescriptionFragment();
+
+
             if (position == 0) {
-                //user selected the Ingredients. We use our helper method to get them as a single String
-                descriptionFragment.setStepDescription(mRecipe.getRecipeIngredientsAsString());
+                /* If the user selected the Ingredients, we use our recipe's helper method
+                 * getRecipeIngredientsAsString() to get ingredients as a single String
+                 * and then replace the StepDescriptionFragment
+                 */
+
+                mStepDescriptionFragment.setStepDescription(mRecipe.getRecipeIngredientsAsString());
+                mFragmentManager.beginTransaction()
+                        .replace(R.id.step_description_container, mStepDescriptionFragment)
+                        .commit();
+                mFragmentManager.beginTransaction()
+                        .remove(mExoplayerFragment)
+                        .commit();
+                findViewById(R.id.exoplayer_container).setVisibility(View.GONE);
+
             }
             else {
                 int stepNumberSelected = position - 1;
-                descriptionFragment.setStepDescription(mRecipe.getSteps().get(stepNumberSelected).getDescription());
+                mStepDescriptionFragment = new StepDescriptionFragment();
+                mStepDescriptionFragment.setStepDescription(mRecipe.getSteps().get(stepNumberSelected).getDescription());
+                mFragmentManager.beginTransaction()
+                        .replace(R.id.step_description_container, mStepDescriptionFragment)
+                        .commit();
+
+                String videoUrl = mRecipe.getSteps().get(stepNumberSelected).getVideoURL();
+
+                if (!TextUtils.isEmpty(videoUrl)) {
+                    mExoplayerFragment = new ExoplayerFragment();
+                    findViewById(R.id.exoplayer_container).setVisibility(View.VISIBLE);
+                    Log.d("VideoURL", videoUrl);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ExoplayerFragment.URL_KEY, videoUrl);
+
+                    mExoplayerFragment.setArguments(bundle);
+                    mFragmentManager.beginTransaction()
+                            .replace(R.id.exoplayer_container, mExoplayerFragment)
+                            .commit();
+                }
+                else {
+                    Log.d("VideoURL", "Not found, removing Fragment");
+//                    ExoplayerFragment exoplayerFragment1 = (ExoplayerFragment)getFragmentManager()
+//                            .findFragmentById(R.id.exoplayer_container);
+                    mFragmentManager.beginTransaction()
+                            .remove(mExoplayerFragment)
+                            .commit();
+                    findViewById(R.id.exoplayer_container).setVisibility(View.GONE);
+
+                }
             }
-            fragmentManager.beginTransaction()
-                    .replace(R.id.step_description_container, descriptionFragment)
-                    .commit();
+
         }
         else {
-            //in single pane, launch a different activity that uses the above fragments
+            //TODO: in single pane, launch a different activity that uses the above fragments
         }
 
 
