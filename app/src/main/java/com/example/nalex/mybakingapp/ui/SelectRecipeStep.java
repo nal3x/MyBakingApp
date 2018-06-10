@@ -86,7 +86,7 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
                  * getRecipeIngredientsAsString() to get ingredients as a single String
                  * and then replace the StepDescriptionFragment
                  */
-
+                mStepDescriptionFragment = new StepDescriptionFragment();
                 mStepDescriptionFragment.setStepDescription(mRecipe.getRecipeIngredientsAsString());
                 mFragmentManager.beginTransaction()
                         .replace(R.id.step_description_container, mStepDescriptionFragment)

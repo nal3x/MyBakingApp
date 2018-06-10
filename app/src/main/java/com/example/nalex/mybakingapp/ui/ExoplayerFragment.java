@@ -1,6 +1,5 @@
 package com.example.nalex.mybakingapp.ui;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -19,12 +18,17 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
 public class ExoplayerFragment extends Fragment {
 
     private SimpleExoPlayerView mPlayerView;
     private SimpleExoPlayer mExoPlayer;
     public final static String URL_KEY = "videoUrl";
+    private long playbackPosition;
+    private int currentWindow;
+    private boolean playWhenReady = true;
+    private Uri mediaUri;
 
     public ExoplayerFragment() {
 
@@ -40,47 +44,78 @@ public class ExoplayerFragment extends Fragment {
 
         mPlayerView = rootView.findViewById(R.id.exoplayer_view);
 
-        mExoPlayer = ExoPlayerFactory.newSimpleInstance(
-                new DefaultRenderersFactory(getContext()),
-                new DefaultTrackSelector(), new DefaultLoadControl());
-
         String mediaUrl = getArguments().getString(URL_KEY);
 
-        Uri mediaUri = Uri.parse(mediaUrl);
-
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(
-                new DefaultHttpDataSourceFactory("exoplayer")).createMediaSource(mediaUri);
-
-        mExoPlayer.prepare(mediaSource);
-
-        mPlayerView.setPlayer(mExoPlayer);
-
-        mExoPlayer.setPlayWhenReady(true);
+        mediaUri = Uri.parse(mediaUrl);
 
         return rootView;
     }
 
     @Override
     public void onDestroyView() {
+        //cleaning references
         super.onDestroyView();
         mPlayerView = null;
         mExoPlayer = null;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    private void initializePlayer() {
+        mExoPlayer = ExoPlayerFactory.newSimpleInstance(
+                new DefaultRenderersFactory(getContext()),
+                new DefaultTrackSelector(), new DefaultLoadControl());
+
+        mPlayerView.setPlayer(mExoPlayer);
+        mPlayerView.setUseController(false);
+
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(
+                new DefaultHttpDataSourceFactory("exoplayer")).createMediaSource(mediaUri);
+
+        mExoPlayer.prepare(mediaSource, true, false);
+
+        mExoPlayer.setPlayWhenReady(playWhenReady);
+        mExoPlayer.seekTo(currentWindow, playbackPosition);
     }
 
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        mExoPlayer.setPlayWhenReady(false);
-//    }
-//
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        mExoPlayer.setPlayWhenReady(true);
-//    }
+
+    private void releasePlayer() {
+        if (mExoPlayer != null) {
+            playbackPosition = mExoPlayer.getCurrentPosition();
+            currentWindow = mExoPlayer.getCurrentWindowIndex();
+            playWhenReady = mExoPlayer.getPlayWhenReady();
+            mExoPlayer.release();
+            mExoPlayer = null;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+            initializePlayer();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if ((Util.SDK_INT <= 23 || mExoPlayer == null)) {
+            initializePlayer();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
 }
