@@ -38,13 +38,15 @@
             android:id="@+id/exoplayer_container"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_weight="0.5" />
+            android:layout_weight="0.5"
+            />
 
         <FrameLayout
             android:id="@+id/step_description_container"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_weight="0.5" />
+            android:layout_weight="0.5"
+            />
 
 
 

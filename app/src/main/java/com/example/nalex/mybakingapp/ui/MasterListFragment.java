@@ -10,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.nalex.mybakingapp.R;
 import com.example.nalex.mybakingapp.adapter.StepAdapter;
@@ -20,6 +19,9 @@ import com.example.nalex.mybakingapp.model.Step;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MasterListFragment extends Fragment implements StepAdapter.StepClickListener {
 
@@ -31,9 +33,10 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
 
     private List<String> mSteps;
     private StepAdapter mStepAdapter;
-    private onMasterListClickListener mCallback;
+    private onMasterListClickListener mListener;
+    private RecyclerView.LayoutManager mLayoutManager;
 
-    //@BindView(R.id.recipe_step_recycler_view) RecyclerView mRecyclerView; //TODO: check if I can do it
+    @BindView(R.id.recipe_step_recycler_view) RecyclerView mRecyclerView; //TODO: check if I can do it
 
     public MasterListFragment (){
         //compulsory empty constructor
@@ -47,16 +50,24 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         //if context cannot be cast to onStepClickListener then the mCallbacks does not implement
         //onStepClickListener
-
         try {
-            mCallback = (onMasterListClickListener) context;
+            mListener = (onMasterListClickListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement onMasterListStepClick");
         }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+         mLayoutManager = new LinearLayoutManager(getContext(),
+                LinearLayoutManager.VERTICAL, false);
+        mSteps = new ArrayList<>();
+        mStepAdapter = new StepAdapter(getContext(), mSteps, this); //TODO: check Context suitability
     }
 
     @Nullable
@@ -65,21 +76,21 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
                              @Nullable Bundle savedInstanceState) {
 
         //Creates and returns a rootView which contains a recyclerView of the recipe steps
-
         final View rootView = inflater.inflate(R.layout.fragment_master_list, container, false);
-
-        RecyclerView recyclerView = rootView.findViewById(R.id.recipe_step_recycler_view);
-
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext(),
-                LinearLayoutManager.VERTICAL, false);
-
-        recyclerView.setLayoutManager(layoutManager);
-
-        mSteps = new ArrayList<>();
-        mStepAdapter= new StepAdapter(getContext(), mSteps, this); //TODO: check Context suitability
-        recyclerView.setAdapter(mStepAdapter);
-
         return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        /*  Only called if the view returned from onCreateView() is non-null. Any view setup should
+         *  occur here.  E.g., view lookups and attaching view listeners.
+         */
+        ButterKnife.bind(this, view); //Two argument version separates instance being bound (this)
+        // from the source of the views
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mStepAdapter);
     }
 
     /* Setter method for the steps presented by this fragment (ingredients title + short description)
@@ -98,6 +109,12 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
     @Override
     public void onStepClick (int clickedStepIndex) {
         //clickedStepIndex carries the StepAdapter position
-        mCallback.onStepClicked(clickedStepIndex);
+        mListener.onStepClicked(clickedStepIndex);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        this.mListener = null;
     }
 }

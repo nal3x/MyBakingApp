@@ -34,41 +34,37 @@ public class ExoplayerFragment extends Fragment {
 
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
 
-
         View rootView = inflater.inflate(R.layout.fragment_exoplayer, container, false);
-
         mPlayerView = rootView.findViewById(R.id.exoplayer_view);
+        return rootView;
+    }
+
+    private void initializePlayer() {
 
         String mediaUrl = getArguments().getString(URL_KEY);
 
         mediaUri = Uri.parse(mediaUrl);
 
-        return rootView;
-    }
-
-    @Override
-    public void onDestroyView() {
-        //cleaning references
-        super.onDestroyView();
-        mPlayerView = null;
-        mExoPlayer = null;
-    }
-
-    private void initializePlayer() {
         mExoPlayer = ExoPlayerFactory.newSimpleInstance(
                 new DefaultRenderersFactory(getContext()),
                 new DefaultTrackSelector(), new DefaultLoadControl());
 
         mPlayerView.setPlayer(mExoPlayer);
-        mPlayerView.setUseController(false);
+
+        mPlayerView.setUseController(false); //hides exoplayer controller
 
         MediaSource mediaSource = new ExtractorMediaSource.Factory(
-                new DefaultHttpDataSourceFactory("exoplayer")).createMediaSource(mediaUri);
+                new DefaultHttpDataSourceFactory("myBakingApp")).createMediaSource(mediaUri);
 
         mExoPlayer.prepare(mediaSource, true, false);
 
@@ -104,18 +100,34 @@ public class ExoplayerFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (Util.SDK_INT <= 23) {
-            releasePlayer();
-        }
+    public void onDetach() {
+        super.onDetach();
+        releasePlayer();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (Util.SDK_INT > 23) {
-            releasePlayer();
-        }
-    }
+//    @Override
+//    public void onPause() {
+//        super.onPause();
+//        if (Util.SDK_INT <= 23) {
+//            releasePlayer();
+//        }
+//    }
+
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        if (Util.SDK_INT > 23) {
+//            releasePlayer();
+//        }
+//    }
+
+//   @Override
+//    public void onDestroyView() {
+//        //cleaning references
+//        super.onDestroyView();
+//        mPlayerView = null;
+//        mExoPlayer = null;
+//    }
+
+
 }
