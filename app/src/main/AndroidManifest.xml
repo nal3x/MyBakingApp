@@ -23,6 +23,10 @@
         <activity android:name=".ui.SelectRecipeStep">
 
         </activity>
+
+        <activity android:name=".ui.ViewRecipeSteps">
+
+        </activity>
     </application>
 
 </manifest>

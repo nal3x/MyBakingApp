@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 
 import com.example.nalex.mybakingapp.R;
 import com.example.nalex.mybakingapp.model.Recipe;
@@ -26,6 +25,9 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
     private ExoplayerFragment mExoplayerFragment;
     private final FragmentManager mFragmentManager = getSupportFragmentManager();
     private final String EXOPLAYER_FRAGMENT_TAG = "exoplayerFragmentTag";
+    public final static String SELECT_RECIPE_STEP_RECIPE_INTENT_KEY = "recipe";
+    public final static String SELECT_RECIPE_STEP_STEP_SELECT_INTENT_KEY = "stepSelected";
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -161,9 +163,11 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
 
         }
         else {
-            //TODO: in single pane, launch a different activity that uses the above fragments
+            Intent intent = new Intent(SelectRecipeStep.this, ViewRecipeSteps.class);
+            intent.putExtra(SELECT_RECIPE_STEP_RECIPE_INTENT_KEY, mRecipe);
+            intent.putExtra(SELECT_RECIPE_STEP_STEP_SELECT_INTENT_KEY, position);
+            startActivity(intent);
         }
-
 
     }
 }

@@ -64,7 +64,7 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-         mLayoutManager = new LinearLayoutManager(getContext(),
+        mLayoutManager = new LinearLayoutManager(getContext(),
                 LinearLayoutManager.VERTICAL, false);
         mSteps = new ArrayList<>();
         mStepAdapter = new StepAdapter(getContext(), mSteps, this); //TODO: check Context suitability

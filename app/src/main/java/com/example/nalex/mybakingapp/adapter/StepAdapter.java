@@ -23,7 +23,7 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
 
     //Interface implemented by the MasterListFragment
     public interface StepClickListener {
-        public void onStepClick(int clickedStepIndex);
+        void onStepClick(int clickedStepIndex);
     }
 
 
@@ -64,8 +64,10 @@ public class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
+        //mStepsList's first element is an "Ingredients" String
         String recipeStep = mStepsList.get(position);
         holder.mRecipeStepDescription.setText(recipeStep);
+        //Numbering of master list starts after "Ingredients" and "Recipe Introduction"
         if (position > 1)
             holder.mStepMetaData.setText(String.valueOf(position -1));
         else
