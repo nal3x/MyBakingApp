@@ -14,7 +14,7 @@
     <fragment
         android:id="@+id/master_list_fragment"
         android:name="com.example.nalex.mybakingapp.ui.MasterListFragment"
-        android:layout_width="300dp"
+        android:layout_width="250dp"
         android:layout_height="match_parent" />
 
     <!-- A small divider -->
@@ -37,14 +37,14 @@
         <FrameLayout
             android:id="@+id/exoplayer_container"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="match_parent"
             android:layout_weight="0.5"
             />
 
         <FrameLayout
             android:id="@+id/step_description_container"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="match_parent"
             android:layout_weight="0.5"
             />
 

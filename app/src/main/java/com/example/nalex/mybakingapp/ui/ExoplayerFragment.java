@@ -2,6 +2,7 @@ package com.example.nalex.mybakingapp.ui;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -25,19 +26,13 @@ public class ExoplayerFragment extends Fragment {
     private SimpleExoPlayerView mPlayerView;
     private SimpleExoPlayer mExoPlayer;
     public final static String URL_KEY = "videoUrl";
-    private long playbackPosition;
-    private int currentWindow;
-    private boolean playWhenReady = true;
+    private final static String VIDEO_POSITION_KEY = "positionKey";
+    private final static String VIDEO_STATE_KEY = "stateKey";
+    private long mPlaybackPosition;
+    private boolean mPlayWhenReady = true;
     private Uri mediaUri;
 
     public ExoplayerFragment() {
-
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
     }
 
     @Nullable
@@ -46,40 +41,48 @@ public class ExoplayerFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_exoplayer, container, false);
         mPlayerView = rootView.findViewById(R.id.exoplayer_view);
+        //onCreateView called before onStart and onStop, where we initialize the player
+        if (savedInstanceState != null) {
+            mPlaybackPosition = savedInstanceState.getLong(VIDEO_POSITION_KEY);
+            mPlayWhenReady = savedInstanceState.getBoolean(VIDEO_STATE_KEY);
+        }
         return rootView;
     }
 
     private void initializePlayer() {
 
         String mediaUrl = getArguments().getString(URL_KEY);
-
         mediaUri = Uri.parse(mediaUrl);
 
         mExoPlayer = ExoPlayerFactory.newSimpleInstance(
                 new DefaultRenderersFactory(getContext()),
                 new DefaultTrackSelector(), new DefaultLoadControl());
-
         mPlayerView.setPlayer(mExoPlayer);
-
-        mPlayerView.setUseController(false); //hides exoplayer controller
-
+        mPlayerView.setUseController(false); //can hide exoplayer controller
         MediaSource mediaSource = new ExtractorMediaSource.Factory(
                 new DefaultHttpDataSourceFactory("myBakingApp")).createMediaSource(mediaUri);
 
         mExoPlayer.prepare(mediaSource, true, false);
-
-        mExoPlayer.setPlayWhenReady(playWhenReady);
-        mExoPlayer.seekTo(currentWindow, playbackPosition);
+        mExoPlayer.setPlayWhenReady(mPlayWhenReady);
+        mExoPlayer.seekTo(mPlaybackPosition);
     }
 
 
     private void releasePlayer() {
         if (mExoPlayer != null) {
-            playbackPosition = mExoPlayer.getCurrentPosition();
-            currentWindow = mExoPlayer.getCurrentWindowIndex();
-            playWhenReady = mExoPlayer.getPlayWhenReady();
+            mPlaybackPosition = mExoPlayer.getCurrentPosition();
+            mPlayWhenReady = mExoPlayer.getPlayWhenReady();
             mExoPlayer.release();
             mExoPlayer = null;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mExoPlayer != null) {
+            outState.putLong(VIDEO_POSITION_KEY, mExoPlayer.getCurrentPosition());
+            outState.putBoolean(VIDEO_STATE_KEY, mExoPlayer.getPlayWhenReady());
         }
     }
 
@@ -100,34 +103,32 @@ public class ExoplayerFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        releasePlayer();
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            releasePlayer();
+        }
+    }
+
+   @Override
+    public void onDestroyView() {
+        //cleaning references, listeners etc to avoid memory leaks
+        super.onDestroyView();
+        mPlayerView = null;
+        mExoPlayer = null;
     }
 
 //    @Override
-//    public void onPause() {
-//        super.onPause();
-//        if (Util.SDK_INT <= 23) {
-//            releasePlayer();
-//        }
+//    public void onDetach() {
+//        super.onDetach();
+//        releasePlayer();
 //    }
-
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        if (Util.SDK_INT > 23) {
-//            releasePlayer();
-//        }
-//    }
-
-//   @Override
-//    public void onDestroyView() {
-//        //cleaning references
-//        super.onDestroyView();
-//        mPlayerView = null;
-//        mExoPlayer = null;
-//    }
-
-
 }

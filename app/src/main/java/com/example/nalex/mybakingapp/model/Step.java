@@ -2,6 +2,7 @@ package com.example.nalex.mybakingapp.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -77,6 +78,15 @@ public class Step implements Parcelable {
     }
 
     public String getVideoURL() {
+        /* If the videoURL returned is empty then we are sure that thumbnailURL does not
+         * accidentally point to a video.
+         */
+        if (TextUtils.isEmpty(videoURL)) {
+            if (thumbnailURL.endsWith(".mp4")) {
+                videoURL = thumbnailURL;
+                thumbnailURL ="";
+            }
+        }
         return videoURL;
     }
 

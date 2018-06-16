@@ -25,6 +25,7 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
     private StepDescriptionFragment mStepDescriptionFragment;
     private ExoplayerFragment mExoplayerFragment;
     private final FragmentManager mFragmentManager = getSupportFragmentManager();
+    private final String EXOPLAYER_FRAGMENT_TAG = "exoplayerFragmentTag";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,6 +54,8 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
                         .commit();
 
                 String videoUrl = mRecipe.getSteps().get(0).getVideoURL();
+                //a fix is applied in getVideoURL ensuring that if video Url is empty then thumbnail
+                //does not accidentally point to a video
                 if (!TextUtils.isEmpty(videoUrl)) {
                     Log.d("VideoURL", videoUrl);
                     Bundle bundle = new Bundle();
@@ -61,6 +64,21 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
                     mExoplayerFragment.setArguments(bundle);
                     mFragmentManager.beginTransaction()
                             .add(R.id.exoplayer_container, mExoplayerFragment)
+                            .commit();
+                }
+                else {
+                    //we have an empty videoURL -> thumbnailUrl does not point to a video. See above.
+                    String thumbnailUrl = mRecipe.getSteps().get(0).getThumbnailURL();
+                    if (TextUtils.isEmpty(thumbnailUrl)) {
+                        //if thumbnailUrl is empty we load the image of the Recipe, set by our custom search.
+                        thumbnailUrl = mRecipe.getImage();
+                    }
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ThumbnailFragment.THUMBNAIL_URL_KEY, thumbnailUrl);
+                    ThumbnailFragment thumbnailFragment= new ThumbnailFragment();
+                    thumbnailFragment.setArguments(bundle);
+                    mFragmentManager.beginTransaction()
+                            .add(R.id.exoplayer_container, thumbnailFragment)
                             .commit();
                 }
             }
@@ -79,8 +97,6 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
          */
         if (mTwoPane) {
             //In two-pane mode, make new Fragments and replace the existing ones
-
-
             if (position == 0) {
                 /* If the user selected the Ingredients, we use our recipe's helper method
                  * getRecipeIngredientsAsString() to get ingredients as a single String
@@ -91,13 +107,22 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
                 mFragmentManager.beginTransaction()
                         .replace(R.id.step_description_container, mStepDescriptionFragment)
                         .commit();
+
+                String thumbnailUrl = mRecipe.getSteps().get(0).getThumbnailURL();
+                if (TextUtils.isEmpty(thumbnailUrl)) {
+                    thumbnailUrl = mRecipe.getImage();
+                }
+                Bundle bundle = new Bundle();
+                bundle.putString(ThumbnailFragment.THUMBNAIL_URL_KEY, thumbnailUrl);
+                ThumbnailFragment thumbnailFragment= new ThumbnailFragment();
+                thumbnailFragment.setArguments(bundle);
                 mFragmentManager.beginTransaction()
-                        .remove(mExoplayerFragment)
+                        .replace(R.id.exoplayer_container, thumbnailFragment)
                         .commit();
-                findViewById(R.id.exoplayer_container).setVisibility(View.GONE);
 
             }
             else {
+                //User selects a true recipe step, not ingredients
                 int stepNumberSelected = position - 1;
                 mStepDescriptionFragment = new StepDescriptionFragment();
                 mStepDescriptionFragment.setStepDescription(mRecipe.getSteps().get(stepNumberSelected).getDescription());
@@ -109,25 +134,28 @@ public class SelectRecipeStep extends AppCompatActivity implements MasterListFra
 
                 if (!TextUtils.isEmpty(videoUrl)) {
                     mExoplayerFragment = new ExoplayerFragment();
-                    findViewById(R.id.exoplayer_container).setVisibility(View.VISIBLE);
                     Log.d("VideoURL", videoUrl);
                     Bundle bundle = new Bundle();
                     bundle.putString(ExoplayerFragment.URL_KEY, videoUrl);
 
                     mExoplayerFragment.setArguments(bundle);
                     mFragmentManager.beginTransaction()
-                            .replace(R.id.exoplayer_container, mExoplayerFragment)
+                            .replace(R.id.exoplayer_container, mExoplayerFragment, EXOPLAYER_FRAGMENT_TAG)
                             .commit();
                 }
                 else {
-                    Log.d("VideoURL", "Not found, removing Fragment");
-//                    ExoplayerFragment exoplayerFragment1 = (ExoplayerFragment)getFragmentManager()
-//                            .findFragmentById(R.id.exoplayer_container);
-                    mFragmentManager.beginTransaction()
-                            .remove(mExoplayerFragment)
-                            .commit();
-                    findViewById(R.id.exoplayer_container).setVisibility(View.GONE);
 
+                    String thumbnailUrl = mRecipe.getSteps().get(0).getThumbnailURL();
+                    if (TextUtils.isEmpty(thumbnailUrl)) {
+                        thumbnailUrl = mRecipe.getImage();
+                    }
+                    Bundle bundle = new Bundle();
+                    bundle.putString(ThumbnailFragment.THUMBNAIL_URL_KEY, thumbnailUrl);
+                    ThumbnailFragment thumbnailFragment= new ThumbnailFragment();
+                    thumbnailFragment.setArguments(bundle);
+                    mFragmentManager.beginTransaction()
+                            .replace(R.id.exoplayer_container, thumbnailFragment)
+                            .commit();
                 }
             }
 
