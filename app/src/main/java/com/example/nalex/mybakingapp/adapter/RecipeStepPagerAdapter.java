@@ -10,9 +10,8 @@ import com.example.nalex.mybakingapp.ui.StepFragment;
 
 public class RecipeStepPagerAdapter extends FragmentStatePagerAdapter {
 
-    //Pager adapter needs the recipe to navigate both between steps and ingredients
+    //This pager adapter needs the recipe to navigate both between steps and ingredients
     private Recipe mRecipe;
-
 
     public RecipeStepPagerAdapter(FragmentManager fm, Recipe recipe) {
         super(fm);

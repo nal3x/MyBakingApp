@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
-public class ExoplayerFragment extends Fragment {
+public class ExoplayerFragment extends Fragment implements StepFragment.onSetUserVisibleParentCall {
 
     private SimpleExoPlayerView mPlayerView;
     private SimpleExoPlayer mExoPlayer;
@@ -31,8 +31,18 @@ public class ExoplayerFragment extends Fragment {
     private long mPlaybackPosition;
     private boolean mPlayWhenReady = true;
     private Uri mediaUri;
+    private final static String TAG = ExoplayerFragment.class.getSimpleName();
 
     public ExoplayerFragment() {
+    }
+
+    @Override
+    public void onVisibilityChange(boolean isVisible) {
+        if (isVisible) {
+            initializePlayer();
+        } else {
+            releasePlayer();
+        }
     }
 
     @Nullable
@@ -90,14 +100,16 @@ public class ExoplayerFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (Util.SDK_INT > 23) {
-            initializePlayer();
+            if (getParentFragment() == null) { //if not nested, i.e. on tablets
+                initializePlayer();
+            }
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if ((Util.SDK_INT <= 23 || mExoPlayer == null)) {
+        if ((Util.SDK_INT <= 23 || mExoPlayer == null) && getParentFragment() == null) {
             initializePlayer();
         }
     }
@@ -130,5 +142,6 @@ public class ExoplayerFragment extends Fragment {
 //    public void onDetach() {
 //        super.onDetach();
 //        releasePlayer();
+//        Log.d(TAG, "Exoplayer Detached");
 //    }
 }

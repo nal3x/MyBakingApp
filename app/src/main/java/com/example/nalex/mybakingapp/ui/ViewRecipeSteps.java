@@ -15,11 +15,11 @@ public class ViewRecipeSteps extends AppCompatActivity {
 
     /* This activity is only used on mobile (widths < 600dp) and is launched by SelectRecipeStep
      * activity. It has a complete recipe as a member in order to navigate between steps. The
-     * ViewRecipeSteps activity uses a ViewPager to navigate between host fragments which include
-     * nested fragments for recipe step details (video or thumbnail + stepdescription).
+     * ViewRecipeSteps activity uses a ViewPager to navigate between host fragments (StepFragment)
+     * which include nested fragments for recipe step details (video or thumbnail + stepdescription).
      */
     private Recipe mRecipe;
-    private int stepShown;
+    private int stepShown; //position of the adapter in SelectRecipeStep activity
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
 

@@ -50,8 +50,7 @@ public class MasterListFragment extends Fragment implements StepAdapter.StepClic
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        //if context cannot be cast to onStepClickListener then the mCallbacks does not implement
-        //onStepClickListener
+        //if context cannot be cast to onStepClickListener then mListener does not implement the Interface
         try {
             mListener = (onMasterListClickListener) context;
         } catch (ClassCastException e) {

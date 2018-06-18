@@ -17,6 +17,8 @@ import butterknife.ButterKnife;
 
 public class ThumbnailFragment extends Fragment {
 
+    //Fragment holding a view of the thumbnail, used when no video is present in a recipe step
+
     public final static String THUMBNAIL_URL_KEY = "thumbnailUrl";
 
     @BindView(R.id.thumbnail_view) ImageView thumbnailImageView;

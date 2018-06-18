@@ -13,7 +13,10 @@ import com.example.nalex.mybakingapp.R;
 
 public class StepDescriptionFragment extends Fragment {
 
+    //Fragment returning a view with text describing the recipe step
+
     private String mStepDescription;
+    private final static String SAVE_STEP_DESCRIPTION_KEY = "saveDescription";
 
     public StepDescriptionFragment() {
     }
@@ -24,7 +27,7 @@ public class StepDescriptionFragment extends Fragment {
 
         //load saved state if there is one
         if (savedInstanceState != null) {
-            mStepDescription = savedInstanceState.getString("key");
+            mStepDescription = savedInstanceState.getString(SAVE_STEP_DESCRIPTION_KEY);
         }
 
         View rootView = inflater.inflate(R.layout.fragment_step_description, container, false);
@@ -46,6 +49,6 @@ public class StepDescriptionFragment extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         //save step description
-        outState.putString("key", mStepDescription);
+        outState.putString(SAVE_STEP_DESCRIPTION_KEY, mStepDescription);
     }
 }
