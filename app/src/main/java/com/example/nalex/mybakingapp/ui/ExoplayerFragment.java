@@ -36,6 +36,7 @@ public class ExoplayerFragment extends Fragment implements StepFragment.onSetUse
     public ExoplayerFragment() {
     }
 
+    //This interface method is called each time the visibility of the parent fragment is changed
     @Override
     public void onVisibilityChange(boolean isVisible) {
         if (isVisible) {
@@ -43,20 +44,6 @@ public class ExoplayerFragment extends Fragment implements StepFragment.onSetUse
         } else {
             releasePlayer();
         }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-
-        View rootView = inflater.inflate(R.layout.fragment_exoplayer, container, false);
-        mPlayerView = rootView.findViewById(R.id.exoplayer_view);
-        //onCreateView called before onStart and onStop, where we initialize the player
-        if (savedInstanceState != null) {
-            mPlaybackPosition = savedInstanceState.getLong(VIDEO_POSITION_KEY);
-            mPlayWhenReady = savedInstanceState.getBoolean(VIDEO_STATE_KEY);
-        }
-        return rootView;
     }
 
     private void initializePlayer() {
@@ -68,7 +55,7 @@ public class ExoplayerFragment extends Fragment implements StepFragment.onSetUse
                 new DefaultRenderersFactory(getContext()),
                 new DefaultTrackSelector(), new DefaultLoadControl());
         mPlayerView.setPlayer(mExoPlayer);
-        mPlayerView.setUseController(false); //can hide exoplayer controller
+        mPlayerView.setUseController(false); //used to hide exoplayer controls
         MediaSource mediaSource = new ExtractorMediaSource.Factory(
                 new DefaultHttpDataSourceFactory("myBakingApp")).createMediaSource(mediaUri);
 
@@ -96,12 +83,31 @@ public class ExoplayerFragment extends Fragment implements StepFragment.onSetUse
         }
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_exoplayer, container, false);
+        mPlayerView = rootView.findViewById(R.id.exoplayer_view);
+        //onCreateView called before onStart and onStop, where we initialize the player
+        if (savedInstanceState != null) {
+            mPlaybackPosition = savedInstanceState.getLong(VIDEO_POSITION_KEY);
+            mPlayWhenReady = savedInstanceState.getBoolean(VIDEO_STATE_KEY);
+        }
+        return rootView;
+    }
+
     @Override
     public void onStart() {
         super.onStart();
         if (Util.SDK_INT > 23) {
-            if (getParentFragment() == null) { //if not nested, i.e. on tablets
+            if (getParentFragment() == null) { //if not nested, i.e. on mobile
                 initializePlayer();
+            }
+            else {//when nested, initialize only if parent StepFragment is visible
+                if (getParentFragment().getUserVisibleHint()) {
+                    initializePlayer();
+                }
             }
         }
     }
@@ -109,8 +115,14 @@ public class ExoplayerFragment extends Fragment implements StepFragment.onSetUse
     @Override
     public void onResume() {
         super.onResume();
-        if ((Util.SDK_INT <= 23 || mExoPlayer == null) && getParentFragment() == null) {
-            initializePlayer();
+        if ((Util.SDK_INT <= 23 || mExoPlayer == null)) {
+            if (getParentFragment() == null)
+                initializePlayer();
+            else {
+                if (getParentFragment().getUserVisibleHint()) {
+                    initializePlayer();
+                }
+            }
         }
     }
 
@@ -137,11 +149,4 @@ public class ExoplayerFragment extends Fragment implements StepFragment.onSetUse
         mPlayerView = null;
         mExoPlayer = null;
     }
-
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        releasePlayer();
-//        Log.d(TAG, "Exoplayer Detached");
-//    }
 }

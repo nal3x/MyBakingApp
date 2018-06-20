@@ -74,32 +74,35 @@ public class StepFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        if (mMediaUrl.endsWith(".mp4")) {
-            Bundle bundle = new Bundle();
-            bundle.putString(ExoplayerFragment.URL_KEY, mMediaUrl);
-            mCallback = new ExoplayerFragment();
-            mCallback.setArguments(bundle);
+        if (savedInstanceState == null) { //don't create new fragments if there are existing
+            if (mMediaUrl.endsWith(".mp4")) {
+                Bundle bundle = new Bundle();
+                bundle.putString(ExoplayerFragment.URL_KEY, mMediaUrl);
+                mCallback = new ExoplayerFragment();
+                mCallback.setArguments(bundle);
+                getChildFragmentManager().beginTransaction()
+                        .add(R.id.fragment_step_exoplayer_container, mCallback)
+                        .commit();
+            }
+            else { //use a thumbnail fragment to show image instead
+                Bundle bundle = new Bundle();
+                bundle.putString(ThumbnailFragment.THUMBNAIL_URL_KEY, mMediaUrl);
+                ThumbnailFragment thumbnailFragment= new ThumbnailFragment();
+                thumbnailFragment.setArguments(bundle);
+                getChildFragmentManager().beginTransaction()
+                        .add(R.id.fragment_step_exoplayer_container, thumbnailFragment)
+                        .commit();
+            }
+            StepDescriptionFragment stepDescriptionFragment = new StepDescriptionFragment();
+            stepDescriptionFragment.setStepDescription(mStepDescription);
             getChildFragmentManager().beginTransaction()
-                    .add(R.id.fragment_step_exoplayer_container, mCallback)
+                    .add(R.id.fragment_step_step_description_container, stepDescriptionFragment)
                     .commit();
-        }
-        else { //use a thumbnail fragment to show image instead
-            Bundle bundle = new Bundle();
-            bundle.putString(ThumbnailFragment.THUMBNAIL_URL_KEY, mMediaUrl);
-            ThumbnailFragment thumbnailFragment= new ThumbnailFragment();
-            thumbnailFragment.setArguments(bundle);
-            getChildFragmentManager().beginTransaction()
-                    .add(R.id.fragment_step_exoplayer_container, thumbnailFragment)
-                    .commit();
-        }
-        StepDescriptionFragment stepDescriptionFragment = new StepDescriptionFragment();
-        stepDescriptionFragment.setStepDescription(mStepDescription);
-        getChildFragmentManager().beginTransaction()
-                .add(R.id.fragment_step_step_description_container, stepDescriptionFragment)
-                .commit();
 
+        }
     }
+
+
 
     @Override
     public void onDetach() {
