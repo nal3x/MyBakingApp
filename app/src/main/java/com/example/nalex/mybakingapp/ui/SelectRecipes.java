@@ -1,5 +1,7 @@
 package com.example.nalex.mybakingapp.ui;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.nalex.mybakingapp.IngredientsWidgetProvider;
 import com.example.nalex.mybakingapp.R;
 import com.example.nalex.mybakingapp.adapter.RecipesAdapter;
 import com.example.nalex.mybakingapp.model.Recipe;
@@ -85,6 +88,19 @@ public class SelectRecipes extends AppCompatActivity implements RecipesAdapter.R
     @Override
     public void onRecipeClick(int clickedRecipeIndex) {
         //receives clicks from the RecipesAdapter, getting the adapter position
+        Recipe selectedRecipe = mRecipes.get(clickedRecipeIndex);
+        //Manually update our widget here
+        String selectedRecipeName = selectedRecipe.getName();
+        String selectedRecipeIngredients = selectedRecipe.getRecipeIngredientsAsString();
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
+        int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, IngredientsWidgetProvider.class));
+        IngredientsWidgetProvider.updateIngredientsWidgets(this,
+                appWidgetManager,
+                appWidgetIds,
+                selectedRecipeName,
+                selectedRecipeIngredients);
+
+        //launching the SelectRecipeStep activity
         Intent intent = new Intent(SelectRecipes.this, SelectRecipeStep.class);
         intent.putExtra(SELECT_RECIPES_ACTIVITY_INTENT_KEY, mRecipes.get(clickedRecipeIndex));
         startActivity(intent);
