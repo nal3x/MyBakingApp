@@ -16,7 +16,8 @@ public class Utils {
     public static final String REQUESTED_RESULTS = "1";
     public static final String SEARCH_TYPE = "image";
     public static final String REQUESTED_FIELDS = "items";
-    public static final String PREFERRED_RECIPE = "preferred recipe";
+    public static final String PREFERRED_RECIPE_INGREDIENTS = "preferred recipe ingredients";
+    public static final String PREFERRED_RECIPE = "selected recipe" ;
 
 
     public static Map<String, String> getQueryOptions(String recipeName) {

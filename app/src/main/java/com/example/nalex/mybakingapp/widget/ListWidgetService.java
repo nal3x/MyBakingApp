@@ -40,7 +40,7 @@ public class ListWidgetService extends RemoteViewsService {
 
             //get the ingredients string from shared preferences and split lines to a String array
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-            String ingredients = sharedPreferences.getString(Utils.PREFERRED_RECIPE, "");
+            String ingredients = sharedPreferences.getString(Utils.PREFERRED_RECIPE_INGREDIENTS, "");
             mRecipeIngredients = ingredients.split("\\n");
 
             }

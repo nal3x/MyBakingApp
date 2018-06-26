@@ -89,27 +89,24 @@ public class SelectRecipes extends AppCompatActivity implements RecipesAdapter.R
 
     @Override
     public void onRecipeClick(int clickedRecipeIndex) {
-        //receives clicks from the RecipesAdapter, getting the adapter position
+
         Recipe selectedRecipe = mRecipes.get(clickedRecipeIndex);
 
-        //String selectedRecipeName = selectedRecipe.getName();
+        //save selected recipe name & ingredients to shared prefs
+        String selectedRecipeName = selectedRecipe.getName();
         String selectedRecipeIngredients = selectedRecipe.getRecipeIngredientsAsString();
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(Utils.PREFERRED_RECIPE, selectedRecipeIngredients);
+        editor.putString(Utils.PREFERRED_RECIPE, selectedRecipeName);
+        editor.putString(Utils.PREFERRED_RECIPE_INGREDIENTS, selectedRecipeIngredients);
         editor.apply();
 
-        //Manually update our widget here
-
+        //Update widget
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, IngredientsWidgetProvider.class));
-
-        //trigger data update to widget, force data refresh
         IngredientsWidgetProvider.updateIngredientsWidgets(this, appWidgetManager, appWidgetIds);
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_listview);
 
-        //launching the SelectRecipeStep activity
+        //launch the SelectRecipeStep activity
         Intent intent = new Intent(SelectRecipes.this, SelectRecipeStep.class);
         intent.putExtra(SELECT_RECIPES_ACTIVITY_INTENT_KEY, mRecipes.get(clickedRecipeIndex));
         startActivity(intent);
