@@ -3,7 +3,9 @@ package com.example.nalex.mybakingapp.ui;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,7 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.example.nalex.mybakingapp.IngredientsWidgetProvider;
+import com.example.nalex.mybakingapp.widget.IngredientsWidgetProvider;
 import com.example.nalex.mybakingapp.R;
 import com.example.nalex.mybakingapp.adapter.RecipesAdapter;
 import com.example.nalex.mybakingapp.model.Recipe;
@@ -89,16 +91,23 @@ public class SelectRecipes extends AppCompatActivity implements RecipesAdapter.R
     public void onRecipeClick(int clickedRecipeIndex) {
         //receives clicks from the RecipesAdapter, getting the adapter position
         Recipe selectedRecipe = mRecipes.get(clickedRecipeIndex);
-        //Manually update our widget here
-        String selectedRecipeName = selectedRecipe.getName();
+
+        //String selectedRecipeName = selectedRecipe.getName();
         String selectedRecipeIngredients = selectedRecipe.getRecipeIngredientsAsString();
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Utils.PREFERRED_RECIPE, selectedRecipeIngredients);
+        editor.apply();
+
+        //Manually update our widget here
+
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(new ComponentName(this, IngredientsWidgetProvider.class));
-        IngredientsWidgetProvider.updateIngredientsWidgets(this,
-                appWidgetManager,
-                appWidgetIds,
-                selectedRecipeName,
-                selectedRecipeIngredients);
+
+        //trigger data update to widget, force data refresh
+        IngredientsWidgetProvider.updateIngredientsWidgets(this, appWidgetManager, appWidgetIds);
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_listview);
 
         //launching the SelectRecipeStep activity
         Intent intent = new Intent(SelectRecipes.this, SelectRecipeStep.class);

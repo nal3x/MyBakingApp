@@ -1,9 +1,12 @@
-package com.example.nalex.mybakingapp;
+package com.example.nalex.mybakingapp.widget;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
+
+import com.example.nalex.mybakingapp.R;
 
 /**
  * Implementation of App Widget functionality.
@@ -11,27 +14,26 @@ import android.widget.RemoteViews;
 public class IngredientsWidgetProvider extends AppWidgetProvider {
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
-                                int appWidgetId, String recipeName, String ingredients) {
+                                int appWidgetId) {
 
-        // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredients_widget_provider);
-        views.setTextViewText(R.id.widget_recipe_name_text, recipeName);
-        views.setTextViewText(R.id.widget_recipe_ingredients_text, ingredients);
 
-        // Instruct the widget manager to update the widget
+        Intent intent = new Intent(context, ListWidgetService.class);
+        views.setRemoteAdapter(R.id.widget_listview, intent);
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         // There may be multiple widgets active, so update all of them
+
+
     }
 
     //helper static method to update our widgets on demand
-    public static void updateIngredientsWidgets(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds,
-                                                String recipeName, String ingredients) {
+    public static void updateIngredientsWidgets(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId, recipeName, ingredients);
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
 
