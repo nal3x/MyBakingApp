@@ -18,6 +18,6 @@ fragments that include the aforementioned media and step description fragments a
 
 A **collection widget** lists the ingredients of the last visited recipe.
 
-Finally, the app makes use of [Espresso](https://developer.android.com/training/testing/espresso/) for UI testing.
+Finally, the app makes use of [Espresso](https://developer.android.com/training/testing/espresso/) for **UI testing**.
 
 For some screenshots and a video [click here](https://drive.google.com/open?id=1kw5RLf5YrrPw3ref5RDEcCv6_Ku2TH8g)
